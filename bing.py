@@ -6,20 +6,19 @@ from simplebot.bot import DeltaBot, Replies
 from bs4 import BeautifulSoup
 
 
-@simplebot.filter(trylast=True)
-def search_filter(bot: DeltaBot, message: Message, replies: Replies) -> None:
-    if message.text and message.text.strip().lower().startswith("/bing"):
-        query = message.text.strip()[len("/bing"):].strip()
-        if query:
-            image_urls = _search_images(query)
-            if len(image_urls) == 0:
-                replies.add(text="No se encontraron imágenes para la búsqueda: " + query)
-                return
-            random.shuffle(image_urls)
-            for i in range(min(5, len(image_urls))):
-                image_url = image_urls[i]
-                image_data = requests.get(image_url).content
-                replies.add(image=image_data, quote=message)
+@simplebot.command("/bing")
+def search_command(bot: DeltaBot, message: Message, replies: Replies) -> None:
+    query = message.text.strip()[len("/bing"):].strip()
+    if query:
+        image_urls = _search_images(query)
+        if len(image_urls) == 0:
+            replies.add(text="No se encontraron imágenes para la búsqueda: " + query)
+            return
+        random.shuffle(image_urls)
+        for i in range(min(5, len(image_urls))):
+            image_url = image_urls[i]
+            image_data = requests.get(image_url).content
+            replies.add(image=image_data, quote=message)
 
 
 def _search_images(query: str) -> list:
